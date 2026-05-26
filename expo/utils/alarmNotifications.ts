@@ -1,5 +1,6 @@
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
+import AlarmKit from "@/src/utils/AlarmKitModule";
 import type { Alarm } from "@/types";
 
 const ALARM_TAG = "cloq-alarm";
@@ -54,6 +55,9 @@ export async function rescheduleAlarms(alarms: Alarm[]): Promise<void> {
   for (const a of alarms) {
     if (!a.enabled) continue;
     try {
+      const scheduledByAlarmKit = await scheduleAlarmSafely(a);
+      if (scheduledByAlarmKit) continue;
+
       if (a.days.length === 0) {
         await Notifications.scheduleNotificationAsync({
           content: buildContent(a),
@@ -80,6 +84,22 @@ export async function rescheduleAlarms(alarms: Alarm[]): Promise<void> {
   }
 }
 
+
+
+const scheduleAlarmSafely = async (alarm: Alarm): Promise<boolean> => {
+  if (!AlarmKit.isAvailable()) return false;
+
+  if (alarm.days.length > 0) {
+    // AlarmKit bridge currently supports one-shot scheduling only.
+    return false;
+  }
+
+  const timestamp = nextOneShotDate(alarm.hour, alarm.minute).getTime();
+  const soundName = alarm.sound?.builtInId ?? alarm.sound?.recordingId ?? "default";
+  const result = await AlarmKit.scheduleAlarm(alarm.id, timestamp, soundName, alarm.mode);
+  return result === "scheduled";
+};
+
 function buildContent(a: Alarm): Notifications.NotificationContentInput {
   return {
     title: "Alarm",
@@ -91,11 +111,16 @@ function buildContent(a: Alarm): Notifications.NotificationContentInput {
   } as Notifications.NotificationContentInput;
 }
 
-function nextOneShotTrigger(hour: number, minute: number): Notifications.NotificationTriggerInput {
+function nextOneShotDate(hour: number, minute: number): Date {
   const now = new Date();
   const target = new Date();
   target.setHours(hour, minute, 0, 0);
   if (target.getTime() <= now.getTime()) target.setDate(target.getDate() + 1);
+  return target;
+}
+
+function nextOneShotTrigger(hour: number, minute: number): Notifications.NotificationTriggerInput {
+  const target = nextOneShotDate(hour, minute);
   return {
     type: Notifications.SchedulableTriggerInputTypes.DATE,
     date: target,

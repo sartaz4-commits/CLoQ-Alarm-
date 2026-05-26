@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created for CloQ AlarmKit integration — requires Apple entitlement com.apple.developer.alarmkit -->
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>NSAlarmsUsageDescription</key>
+  <string>CloQ uses AlarmKit to fire your morning alarm reliably even when your phone is on silent or Do Not Disturb.</string>
+</dict>
+</plist>

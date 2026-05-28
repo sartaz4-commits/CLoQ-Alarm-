@@ -358,6 +358,7 @@ const styles = StyleSheet.create({
   previewBtn: { width: 32, height: 32, borderRadius: 16, alignItems: "center", justifyContent: "center", backgroundColor: "rgba(196,113,74,0.18)" },
   soundRow: { flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12, paddingHorizontal: 14, borderRadius: RADIUS.md, backgroundColor: COLORS.card, borderWidth: 0.75, borderColor: COLORS.border },
   soundRowOn: { borderColor: COLORS.warmDeep, backgroundColor: "rgba(196,113,74,0.15)" },
+  soundRowDisabled: { opacity: 0.5 },
   soundRowText: { flex: 1, color: COLORS.text, fontWeight: "700", fontSize: 14 },
   soundCheck: { color: COLORS.warmDeep, fontWeight: "900", fontSize: 16 },
   savedRow: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: RADIUS.sm, backgroundColor: COLORS.card, borderWidth: 0.5, borderColor: COLORS.borderLight },

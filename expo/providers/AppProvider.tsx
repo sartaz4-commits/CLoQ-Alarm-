@@ -92,8 +92,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
           const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
           setRecentQuestions((parsed.recentQuestions ?? []).filter((r) => r.at >= cutoff));
         }
-      } catch (e) {
-        console.log("[AppProvider] hydrate error", e);
+      } catch {
       } finally {
         setHydrated(true);
       }
@@ -103,9 +102,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
   useEffect(() => {
     if (!hydrated) return;
     const payload: PersistedState = { onboarded, alarms, meds, settings, recordings, friends, wakeRequests, recentQuestions };
-    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload)).catch((e) =>
-      console.log("[AppProvider] persist error", e)
-    );
+    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(payload)).catch(() => {});
   }, [hydrated, onboarded, alarms, meds, settings, recordings, friends, wakeRequests, recentQuestions]);
 
   // Register with backend (ensures userId + code)
@@ -125,8 +122,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
           displayName: prev.displayName ?? res.name,
         }));
         lastSyncedNameRef.current = res.name;
-      } catch (e) {
-        console.log("[AppProvider] register error", e);
+      } catch {
       }
     })();
     return () => { cancelled = true; };
@@ -139,8 +135,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
       const data = await backend.listFriends(userId);
       setFriends(data.friends.map(mapServerFriend));
       setWakeRequests(data.wakeRequests.map(mapServerRequest));
-    } catch (e) {
-      console.log("[AppProvider] refreshFriends error", e);
+    } catch {
     }
   }, [settings.userId]);
 
@@ -154,9 +149,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
     const signature = `${name}|${alarmTime ?? ""}|${status}`;
     if (signature === lastSyncedAlarmRef.current) return;
     lastSyncedAlarmRef.current = signature;
-    backend.updateProfile(settings.userId, { name, alarmTime, status }).catch((e) =>
-      console.log("[AppProvider] updateProfile error", e)
-    );
+    backend.updateProfile(settings.userId, { name, alarmTime, status }).catch(() => {});
   }, [hydrated, settings.userId, settings.displayName, alarms]);
 
   // Schedule lock-screen alarm notifications whenever alarms change.
@@ -169,7 +162,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
         return;
       }
       await requestNotificationPermission();
-      rescheduleAlarms(enabledAlarms).catch((e) => console.log("[AppProvider] reschedule error", e));
+      rescheduleAlarms(enabledAlarms).catch(() => {});
     })();
   }, [hydrated, alarms]);
 
@@ -252,17 +245,6 @@ export const [AppProvider, useApp] = createContextHook(() => {
     setSettings((prev) => ({ ...prev, ...patch }));
   }, []);
 
-  const resetAll = useCallback(() => {
-    setOnboarded(false);
-    setAlarms([]);
-    setMeds([]);
-    setSettings(defaultSettings);
-    setSnoozeState(null);
-    setRecordings([]);
-    setFriends([]);
-    setWakeRequests([]);
-  }, []);
-
   const startSnooze = useCallback((alarmId: string, minutes: number, adUsed: boolean) => {
     setSnoozeState({ alarmId, resumesAt: Date.now() + minutes * 60_000, adUsed });
   }, []);
@@ -296,8 +278,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
       const f = mapServerFriend(res.friend);
       setFriends((prev) => (prev.some((x) => x.id === f.id) ? prev : [...prev, f]));
       return f;
-    } catch (e) {
-      console.log("[AppProvider] addFriendByCode error", e);
+    } catch {
       return null;
     }
   }, [settings.userId]);
@@ -305,7 +286,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
   const removeFriend = useCallback((id: string) => {
     const userId = settings.userId;
     setFriends((prev) => prev.filter((f) => f.id !== id));
-    if (userId) backend.removeFriend(userId, id).catch((e) => console.log("[AppProvider] removeFriend error", e));
+    if (userId) backend.removeFriend(userId, id).catch(() => {});
   }, [settings.userId]);
 
   const sendNudge = useCallback((friendId: string): boolean => {
@@ -317,8 +298,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
     setFriends((prev) =>
       prev.map((f) => (f.id === friendId ? { ...f, nudgesByDate: { ...f.nudgesByDate, [today]: true } } : f))
     );
-    backend.nudge(userId, friendId).catch((e) => {
-      console.log("[AppProvider] nudge error", e);
+    backend.nudge(userId, friendId).catch(() => {
       setFriends((prev) =>
         prev.map((f) => {
           if (f.id !== friendId) return f;
@@ -348,13 +328,13 @@ export const [AppProvider, useApp] = createContextHook(() => {
         };
         setWakeRequests((prev) => [...prev, req]);
       })
-      .catch((e) => console.log("[AppProvider] wakeRequest error", e));
+      .catch(() => {});
   }, [settings.userId, friends]);
 
   const respondToRequest = useCallback((id: string, accept: boolean) => {
     const userId = settings.userId;
     setWakeRequests((prev) => prev.map((r) => (r.id === id ? { ...r, status: accept ? "accepted" : "declined" } : r)));
-    if (userId) backend.wakeRespond(userId, id, accept).catch((e) => console.log("[AppProvider] wakeRespond error", e));
+    if (userId) backend.wakeRespond(userId, id, accept).catch(() => {});
   }, [settings.userId]);
 
   return useMemo(
@@ -379,7 +359,7 @@ export const [AppProvider, useApp] = createContextHook(() => {
       removeMed,
       toggleMedDose,
       updateSettings,
-      resetAll,
+
       startSnooze,
       clearSnooze,
       addRecording,
@@ -391,6 +371,6 @@ export const [AppProvider, useApp] = createContextHook(() => {
       respondToRequest,
       refreshFriends,
     }),
-    [hydrated, onboarded, alarms, meds, settings, snooze, recordings, friends, wakeRequests, recentQuestionTexts, recordQuestionShown, completeOnboarding, addAlarm, updateAlarm, removeAlarm, addMed, updateMed, removeMed, toggleMedDose, updateSettings, resetAll, startSnooze, clearSnooze, addRecording, removeRecording, addFriendByCode, removeFriend, sendNudge, sendWakeRequest, respondToRequest, refreshFriends]
+    [hydrated, onboarded, alarms, meds, settings, snooze, recordings, friends, wakeRequests, recentQuestionTexts, recordQuestionShown, completeOnboarding, addAlarm, updateAlarm, removeAlarm, addMed, updateMed, removeMed, toggleMedDose, updateSettings, startSnooze, clearSnooze, addRecording, removeRecording, addFriendByCode, removeFriend, sendNudge, sendWakeRequest, respondToRequest, refreshFriends]
   );
 });

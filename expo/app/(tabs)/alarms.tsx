@@ -14,7 +14,7 @@ import { useRouter } from "expo-router";
 import { Linking } from "react-native";
 import * as Haptics from "expo-haptics";
 import { Plus, Settings as SettingsIcon } from "lucide-react-native";
-import { COLORS, DEV_MODE, FONTS, RADIUS } from "@/constants/theme";
+import { COLORS, FONTS, RADIUS } from "@/constants/theme";
 import GrainBackground from "@/components/GrainBackground";
 import { useApp } from "@/providers/AppProvider";
 import { Alarm } from "@/types";
@@ -23,7 +23,6 @@ import { DAY_LABELS, distanceLabel, formatRepeat, formatTime, greeting, nextAlar
 export default function Home() {
   const router = useRouter();
   const { alarms, updateAlarm, removeAlarm, meds, settings, updateSettings, snooze, clearSnooze, wakeRequests } = useApp();
-  const [countdown, setCountdown] = useState<number | null>(null);
   const [snoozeRemaining, setSnoozeRemaining] = useState<number>(0);
 
   // One-time Time Sensitive notification prompt (after onboarding).
@@ -92,29 +91,12 @@ export default function Home() {
 
   const acceptedNudge = wakeRequests.find((r) => r.outgoing && r.status === "accepted");
 
-  const startTest = () => {
-    if (Platform.OS !== "web") Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setCountdown(5);
-  };
-
   const formatRemaining = (ms: number): string => {
     const total = Math.ceil(ms / 1000);
     const m = Math.floor(total / 60);
     const s = total % 60;
     return `${m}:${s.toString().padStart(2, "0")}`;
   };
-
-  useEffect(() => {
-    if (countdown === null) return;
-    if (countdown <= 0) {
-      setCountdown(null);
-      const a = alarms[0];
-      router.push({ pathname: "/alarm-firing", params: a ? { id: a.id } : {} });
-      return;
-    }
-    const t = setTimeout(() => setCountdown((c) => (c === null ? null : c - 1)), 1000);
-    return () => clearTimeout(t);
-  }, [countdown, alarms, router]);
 
   const editAlarm = (id: string) => {
     router.push({ pathname: "/add-alarm", params: { id } });
@@ -195,15 +177,6 @@ export default function Home() {
 
   const footer = (
     <View style={{ gap: 14, marginTop: 14 }}>
-      {DEV_MODE && (
-        <View style={{ gap: 4 }}>
-          <Pressable onPress={startTest} style={styles.testAlarmBtn} testID="test-alarm-btn">
-            <Text style={styles.testAlarmTxt}>Test Alarm — fires in 5 seconds</Text>
-          </Pressable>
-          <Text style={styles.testAlarmSub}>test button · remove before launch</Text>
-        </View>
-      )}
-
       <Pressable onPress={() => router.push("/(tabs)/meds")} style={styles.medCard}>
         <View style={styles.medHeader}>
           <Text style={styles.medTitle}>Reminders</Text>
@@ -250,11 +223,6 @@ export default function Home() {
     <View style={styles.root}>
       <GrainBackground />
       <SafeAreaView edges={["top"]} style={{ flex: 1 }}>
-        {countdown !== null && (
-          <View pointerEvents="none" style={styles.toast}>
-            <Text style={styles.toastText}>Alarm fires in {Math.max(1, countdown)}…</Text>
-          </View>
-        )}
         {snoozeRemaining > 0 && (
           <View pointerEvents="none" style={styles.snoozeBanner}>
             <Text style={styles.snoozeBannerText}>
@@ -392,11 +360,7 @@ const styles = StyleSheet.create({
   weekDot: { width: 30, height: 30, borderRadius: 15, borderWidth: 1, borderColor: COLORS.border, alignItems: "center", justifyContent: "center" },
   weekDotToday: { borderColor: COLORS.warmDeep, shadowColor: COLORS.warmDeep, shadowOpacity: 0.6, shadowRadius: 6 },
   weekLbl: { color: COLORS.textMuted, fontSize: 10, fontWeight: "700" },
-  testAlarmBtn: { paddingVertical: 12, borderRadius: RADIUS.md, borderWidth: 1, borderStyle: "dashed", borderColor: COLORS.warmDeep, backgroundColor: "transparent", alignItems: "center" },
-  testAlarmTxt: { color: COLORS.warmDeep, fontWeight: "700", fontSize: 13 },
-  testAlarmSub: { color: COLORS.textMuted, fontSize: 10, textAlign: "center", opacity: 0.6 },
-  toast: { position: "absolute", top: 60, left: 20, right: 20, zIndex: 50, backgroundColor: COLORS.primary, borderRadius: 999, paddingVertical: 12, alignItems: "center" },
-  toastText: { color: COLORS.creamLight, fontWeight: "700", fontSize: 14, letterSpacing: 0.5 },
+
   snoozeBanner: { position: "absolute", top: 10, left: 20, right: 20, zIndex: 50, backgroundColor: COLORS.primary, borderRadius: 999, paddingVertical: 10, alignItems: "center" },
   snoozeBannerText: { color: COLORS.creamLight, fontWeight: "700", fontSize: 13, letterSpacing: 0.3, fontVariant: ["tabular-nums"] },
   adBanner: { marginTop: 8, borderStyle: "dashed", borderWidth: 0.5, borderColor: COLORS.warmDeep, backgroundColor: COLORS.borderLight, borderRadius: RADIUS.md, padding: 12, flexDirection: "row", alignItems: "center", gap: 8 },

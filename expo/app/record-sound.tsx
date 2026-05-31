@@ -63,8 +63,7 @@ export default function RecordSound() {
       setIsRecording(true);
       setElapsed(0);
       if (Platform.OS !== "web") Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    } catch (e) {
-      console.log("[record] start error", e);
+    } catch {
       Alert.alert("Recording unavailable", "Couldn't start recording on this device.");
     }
   };
@@ -76,8 +75,7 @@ export default function RecordSound() {
       setSavedUri(uri);
       setIsRecording(false);
       if (Platform.OS !== "web") Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } catch (e) {
-      console.log("[record] stop error", e);
+    } catch {
       setIsRecording(false);
     }
   };
@@ -97,8 +95,7 @@ export default function RecordSound() {
       p.volume = 1;
       p.play();
       setPlaying(true);
-    } catch (e) {
-      console.log("[record] play error", e);
+    } catch {
     }
   };
 

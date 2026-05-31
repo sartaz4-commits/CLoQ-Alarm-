@@ -426,7 +426,7 @@ function progressedPolyline(points: PathPoint[], segIdx: number, segT: number): 
 
 function TracePathPuzzle({ onComplete, onFallback }: { onComplete: () => void; onFallback: () => void }) {
   const [spec] = useState<PathPoint[]>(() => {
-    try { return generatePath(); } catch (e) { console.log("[trace] gen error", e); return []; }
+    try { return generatePath(); } catch { return []; }
   });
   const [segIdx, setSegIdx] = useState<number>(0);
   const [segT, setSegT] = useState<number>(0);

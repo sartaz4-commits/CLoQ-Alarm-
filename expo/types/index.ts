@@ -33,7 +33,7 @@ export interface MedDoseLog {
 }
 
 export type BuzzPattern = "short" | "double" | "long";
-export type BuzzSound = "silent" | "goat_bleat" | "cow_moo" | "sad_trombone" | "angry_cat" | "meow_cat";
+export type BuzzSound = "silent" | "goat_bleat" | "cow_moo" | "sad_trombone" | "angry_cat";
 
 export interface MedBuzz {
   pattern: BuzzPattern;

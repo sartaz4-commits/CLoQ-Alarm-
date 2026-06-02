@@ -15,7 +15,7 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "app.rork.cloq-smart-alarm"
+      "bundleIdentifier": "com.cloq.app"
     },
     "android": {
       "adaptiveIcon": {

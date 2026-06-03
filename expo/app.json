@@ -41,7 +41,8 @@
         {
           "microphonePermission": "CloQ needs microphone access to record custom alarm sounds. Your recordings are stored only on your device."
         }
-      ]
+      ],
+      "./plugins/alarmkit/withAlarmKit"
     ],
     "experiments": {
       "typedRoutes": true

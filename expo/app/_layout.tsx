@@ -1,13 +1,15 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Stack } from "expo-router";
+import { Stack, router } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
+import { AppState } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { StatusBar } from "expo-status-bar";
 import { setAudioModeAsync } from "expo-audio";
 import { AppProvider } from "@/providers/AppProvider";
 import { COLORS } from "@/constants/theme";
 import { configureAlarmNotifications } from "@/utils/alarmNotifications";
+import AlarmKit from "@/src/utils/AlarmKitModule";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -66,6 +68,25 @@ export default function RootLayout() {
       shouldRouteThroughEarpiece: false,
     }).catch((e) => console.log("[audio] setMode error", e));
     configureAlarmNotifications().catch((e) => console.log("[notif] configure error", e));
+  }, []);
+
+  // When the user taps "Solve to dismiss" on an AlarmKit alarm, the app is
+  // foregrounded with a pending alarm id stashed natively. Route into the
+  // challenge screen for that alarm (on cold start and on every foreground).
+  useEffect(() => {
+    const checkPendingAlarm = async () => {
+      try {
+        const id = await AlarmKit.consumePendingAlarm();
+        if (id) router.push({ pathname: "/alarm-firing", params: { id } });
+      } catch (e) {
+        console.log("[alarm] pending check error", e);
+      }
+    };
+    checkPendingAlarm();
+    const sub = AppState.addEventListener("change", (state) => {
+      if (state === "active") checkPendingAlarm();
+    });
+    return () => sub.remove();
   }, []);
 
   return (

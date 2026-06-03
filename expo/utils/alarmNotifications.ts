@@ -41,6 +41,17 @@ export async function configureAlarmNotifications(): Promise<void> {
  * appear prominently on the lock screen.
  */
 export async function rescheduleAlarms(alarms: Alarm[]): Promise<void> {
+  // Clear all previously-scheduled AlarmKit alarms so disabled/deleted alarms
+  // stop ringing; the enabled ones below are then re-scheduled fresh.
+  if (AlarmKit.isAvailable()) {
+    try {
+      const r = await AlarmKit.cancelAllAlarms();
+      AlarmKit.log(`rescheduleAlarms cancelAllAlarms result=${r} incoming=${alarms.filter((a) => a.enabled).length}`);
+    } catch (e) {
+      console.log("[alarmNotifications] AlarmKit cancelAll error", e);
+    }
+  }
+
   try {
     const scheduled = await Notifications.getAllScheduledNotificationsAsync();
     for (const n of scheduled) {
@@ -87,16 +98,23 @@ export async function rescheduleAlarms(alarms: Alarm[]): Promise<void> {
 
 
 const scheduleAlarmSafely = async (alarm: Alarm): Promise<boolean> => {
-  if (!AlarmKit.isAvailable()) return false;
+  const available = AlarmKit.isAvailable();
+  AlarmKit.log(`scheduleAlarmSafely id=${alarm.id} isAvailable=${available} days=${alarm.days.length} mode=${alarm.mode}`);
+  if (!available) return false;
+
+  const soundName = alarm.sound?.builtInId ?? alarm.sound?.recordingId ?? "default";
 
   if (alarm.days.length > 0) {
-    // AlarmKit bridge currently supports one-shot scheduling only.
-    return false;
+    AlarmKit.log(`scheduleAlarmSafely calling native (recurring) id=${alarm.id} days=${JSON.stringify(alarm.days)}`);
+    const result = await AlarmKit.scheduleRecurringAlarm(alarm.id, alarm.hour, alarm.minute, alarm.days, soundName, alarm.mode);
+    AlarmKit.log(`scheduleAlarmSafely native recurring result=${result} id=${alarm.id}`);
+    return result === "scheduled";
   }
 
   const timestamp = nextOneShotDate(alarm.hour, alarm.minute).getTime();
-  const soundName = alarm.sound?.builtInId ?? alarm.sound?.recordingId ?? "default";
+  AlarmKit.log(`scheduleAlarmSafely calling native (one-shot) id=${alarm.id} ts=${timestamp}`);
   const result = await AlarmKit.scheduleAlarm(alarm.id, timestamp, soundName, alarm.mode);
+  AlarmKit.log(`scheduleAlarmSafely native one-shot result=${result} id=${alarm.id}`);
   return result === "scheduled";
 };
 

@@ -42,6 +42,30 @@ export const AlarmKit = {
     }
   },
 
+  scheduleRecurringAlarm: async (
+    alarmId: string,
+    hour: number,
+    minute: number,
+    weekdays: number[],
+    soundName: string,
+    mode: 'challenge' | 'loud'
+  ): Promise<string> => {
+    if (!isAlarmKitAvailable()) return 'unavailable';
+    try {
+      return await AlarmKitManager.scheduleRecurringAlarm(
+        alarmId,
+        hour,
+        minute,
+        weekdays,
+        soundName,
+        mode
+      );
+    } catch (e) {
+      console.error('AlarmKit scheduleRecurringAlarm error:', e);
+      return 'error';
+    }
+  },
+
   cancelAlarm: async (alarmId: string): Promise<string> => {
     if (!isAlarmKitAvailable()) return 'unavailable';
     try {
@@ -49,6 +73,35 @@ export const AlarmKit = {
     } catch (e) {
       console.error('AlarmKit cancelAlarm error:', e);
       return 'error';
+    }
+  },
+
+  cancelAllAlarms: async (): Promise<string> => {
+    if (!isAlarmKitAvailable()) return 'unavailable';
+    try {
+      return await AlarmKitManager.cancelAllAlarms();
+    } catch (e) {
+      console.error('AlarmKit cancelAllAlarms error:', e);
+      return 'error';
+    }
+  },
+
+  consumePendingAlarm: async (): Promise<string | null> => {
+    if (AlarmKitManager == null) return null;
+    try {
+      const id = await AlarmKitManager.consumePendingAlarm();
+      return id ?? null;
+    } catch (e) {
+      console.error('AlarmKit consumePendingAlarm error:', e);
+      return null;
+    }
+  },
+
+  log: (message: string): void => {
+    try {
+      AlarmKitManager?.debugLog?.(message);
+    } catch {
+      // no-op
     }
   },
 

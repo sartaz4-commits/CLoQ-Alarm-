@@ -77,8 +77,7 @@ export default function AddMed() {
           stopPreview();
         }
       });
-    } catch (e) {
-      console.log("[reminder preview] error", e);
+    } catch {
       setPlayingId(null);
     }
   };

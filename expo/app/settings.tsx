@@ -12,7 +12,7 @@ const ALL_CATS: QuizCategory[] = ["Science", "History", "Maths", "Puzzles", "Mix
 
 export default function Settings() {
   const router = useRouter();
-  const { settings, updateSettings, resetAll, recordings } = useApp();
+  const { settings, updateSettings, recordings } = useApp();
 
   const toggleCat = (c: QuizCategory) => {
     const has = settings.enabledCategories.includes(c);
@@ -148,9 +148,6 @@ export default function Settings() {
           </View>
         </Section>
 
-        <Pressable onPress={resetAll} style={styles.resetBtn}>
-          <Text style={styles.resetText}>Reset all data (dev)</Text>
-        </Pressable>
       </ScrollView>
     </SafeAreaView>
   );
@@ -210,6 +207,5 @@ const styles = StyleSheet.create({
   premiumBtn: { backgroundColor: COLORS.primary, paddingVertical: 14, borderRadius: 999, alignItems: "center" },
   premiumBtnText: { color: COLORS.creamLight, fontWeight: "800", fontSize: 14 },
   restoreText: { color: COLORS.warmDeep, textAlign: "center", fontSize: 13, fontWeight: "600" },
-  resetBtn: { alignSelf: "center", padding: 8, marginTop: 12 },
-  resetText: { color: COLORS.textDim, fontSize: 12, textDecorationLine: "underline" },
+
 });

@@ -36,8 +36,7 @@ export default function FriendsScreen() {
     const msg = `Wake up with me on CloQ. My friend code: ${settings.myCode ?? ""}\nDownload CloQ to connect.`;
     try {
       await Share.share({ message: msg });
-    } catch (e) {
-      console.log("[friends] share error", e);
+    } catch {
     }
   };
 

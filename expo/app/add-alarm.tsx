@@ -65,7 +65,6 @@ export default function AddAlarm() {
     if (mod === null) {
       const msg = "Audio coming soon — check back after the next update.";
       if (Platform.OS === "android") ToastAndroid.show(msg, ToastAndroid.SHORT);
-      else console.log("[preview]", msg);
       setPlayingId(null);
       return;
     }
@@ -82,8 +81,7 @@ export default function AddAlarm() {
           stopPreview();
         }
       });
-    } catch (e) {
-      console.log("[preview] error", e);
+    } catch {
       setPlayingId(null);
     }
   };

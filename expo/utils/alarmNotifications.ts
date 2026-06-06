@@ -29,8 +29,7 @@ export async function configureAlarmNotifications(): Promise<void> {
         options: { opensAppToForeground: true },
       },
     ]);
-  } catch (e) {
-    console.log("[alarmNotifications] configure error", e);
+  } catch {
   }
 }
 
@@ -59,8 +58,7 @@ export async function rescheduleAlarms(alarms: Alarm[]): Promise<void> {
         await Notifications.cancelScheduledNotificationAsync(n.identifier);
       }
     }
-  } catch (e) {
-    console.log("[alarmNotifications] cancel error", e);
+  } catch {
   }
 
   for (const a of alarms) {
@@ -89,8 +87,7 @@ export async function rescheduleAlarms(alarms: Alarm[]): Promise<void> {
           });
         }
       }
-    } catch (e) {
-      console.log("[alarmNotifications] schedule error", e);
+    } catch {
     }
   }
 }
@@ -161,8 +158,7 @@ export async function requestNotificationPermission(): Promise<boolean> {
       },
     });
     return req.granted;
-  } catch (e) {
-    console.log("[alarmNotifications] permission error", e);
+  } catch {
     return false;
   }
 }

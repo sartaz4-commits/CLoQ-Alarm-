@@ -51,4 +51,4 @@ export const RADIUS = {
   pill: 999,
 } as const;
 
-export const DEV_MODE = true as const;
+export const DEV_MODE = false as const;

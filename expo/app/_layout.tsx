@@ -66,8 +66,8 @@ export default function RootLayout() {
       interruptionMode: "doNotMix",
       interruptionModeAndroid: "doNotMix",
       shouldRouteThroughEarpiece: false,
-    }).catch((e) => console.log("[audio] setMode error", e));
-    configureAlarmNotifications().catch((e) => console.log("[notif] configure error", e));
+    }).catch(() => {});
+    configureAlarmNotifications().catch(() => {});
   }, []);
 
   // When the user taps "Solve to dismiss" on an AlarmKit alarm, the app is

@@ -45,15 +45,13 @@ export function startAlarmAudio(opts?: AlarmSourceOptions | string): AlarmHandle
     player.loop = true;
     player.volume = 0.4;
     player.play();
-  } catch (e) {
-    console.log("[alarmSound] start error, trying fallback", e);
+  } catch {
     try {
       player = createAudioPlayer(FALLBACK_SOURCE);
       player.loop = true;
       player.volume = 0.4;
       player.play();
-    } catch (e2) {
-      console.log("[alarmSound] fallback failed", e2);
+    } catch {
     }
   }
 
@@ -66,8 +64,7 @@ export function startAlarmAudio(opts?: AlarmSourceOptions | string): AlarmHandle
       try {
         player?.pause();
         player?.remove();
-      } catch (e) {
-        console.log("[alarmSound] stop error", e);
+      } catch {
       }
       player = null;
     },

@@ -12,13 +12,15 @@
       "resizeMode": "contain",
       "backgroundColor": "#F2E0B6"
     },
-    "userInterfaceStyle": "dark",
+    "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": false,
       "bundleIdentifier": "app.rork.cloq-smart-alarm",
-      "deploymentTarget": "26.0"
+      "deploymentTarget": "26.0",
+      "buildNumber": "8"
     },
     "android": {
+      "versionCode": 8,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#F2E0B6"
@@ -36,6 +38,7 @@
       ],
       "expo-font",
       "expo-web-browser",
+      "expo-notifications",
       [
         "expo-audio",
         {

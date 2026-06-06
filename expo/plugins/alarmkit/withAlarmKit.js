@@ -80,19 +80,22 @@ function withProject(config) {
 }
 
 // 4. Preserve the Apple development team across prebuild regenerations so the
-//    app target keeps signing (prebuild --clean otherwise drops it).
+//    app target keeps signing (prebuild --clean otherwise drops it). The target
+//    bundle id is read from app.json (ios.bundleIdentifier) rather than
+//    hardcoded, so signing follows the configured id and never drifts.
 const DEVELOPMENT_TEAM = 'RHK2L34N73';
-const APP_BUNDLE_ID = 'com.cloq.app';
 
 function withSigning(config) {
   return withXcodeProject(config, (cfg) => {
     const proj = cfg.modResults;
+    const appBundleId = cfg.ios && cfg.ios.bundleIdentifier;
+    if (!appBundleId) return cfg;
     const configs = proj.pbxXCBuildConfigurationSection();
     for (const key of Object.keys(configs)) {
       const entry = configs[key];
       if (typeof entry !== 'object' || !entry.buildSettings) continue;
       const bid = entry.buildSettings.PRODUCT_BUNDLE_IDENTIFIER;
-      if (bid && String(bid).replace(/"/g, '') === APP_BUNDLE_ID) {
+      if (bid && String(bid).replace(/"/g, '') === appBundleId) {
         entry.buildSettings.DEVELOPMENT_TEAM = DEVELOPMENT_TEAM;
         entry.buildSettings.CODE_SIGN_STYLE = 'Automatic';
       }

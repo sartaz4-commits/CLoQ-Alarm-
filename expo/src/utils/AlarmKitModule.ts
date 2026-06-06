@@ -4,9 +4,13 @@ import { NativeModules, Platform } from 'react-native';
 const { AlarmKitManager } = NativeModules;
 
 const isAlarmKitAvailable = (): boolean => {
+  // Platform.Version on iOS is the system version string, which can have three
+  // components (e.g. "26.5.1"). Number("26.5.1") is NaN, so parse the leading
+  // major version with parseInt instead.
+  const majorVersion = parseInt(String(Platform.Version), 10);
   return (
     Platform.OS === 'ios' &&
-    Number(Platform.Version) >= 26 &&
+    majorVersion >= 26 &&
     AlarmKitManager != null
   );
 };
